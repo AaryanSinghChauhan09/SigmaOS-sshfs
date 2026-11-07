@@ -1,7 +1,7 @@
-//! SigmaOS-sshfs — Mount remote filesystem via SSH model.
+//! SigmaOS-sshfs — utility model.
 
 pub mod util;
 pub mod options;
 
-pub use util::{Sshfs, Mount};
-pub use options::{SshfsOptions, Mode};
+pub use util::Model;
+pub use options::{Mode, Options};

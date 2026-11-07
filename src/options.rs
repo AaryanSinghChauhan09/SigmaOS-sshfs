@@ -1,27 +1,9 @@
 //! Options model.
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Mode {
-    Default,
-    Unmount,
-    Debug,
-    Reconnect,
-    Idmap(String),
-}
+#[derive(Debug, Clone, PartialEq)]
+pub enum Mode { Default, Mount(String, String), Unmount(String), List }
 
 #[derive(Debug, Clone)]
-pub struct SshfsOptions {
-    pub mode: Mode,
-    pub mount_point: String,
-}
-
-impl Default for SshfsOptions {
-    fn default() -> Self { Self { mode: Mode::Default, mount_point: String::new() } }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn opts() { assert_eq!(SshfsOptions::default().mode, Mode::Default); }
-}
+pub struct Options { pub mode: Mode }
+impl Default for Options { fn default() -> Self { Self { mode: Mode::Default } } }
+#[cfg(test)] mod tests { use super::*; #[test] fn o() { assert!(matches!(Options::default().mode, Mode::Default)); } }

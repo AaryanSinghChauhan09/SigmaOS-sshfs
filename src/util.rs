@@ -1,46 +1,50 @@
-//! Sshfs model — mount remote directory via SFTP.
+//! sshfs model — filesystem over SSH.
 
 #[derive(Debug, Clone)]
 pub struct Mount {
-    pub host: String,
-    pub remote_path: String,
-    pub local_path: String,
-    pub user: String,
-    pub options: Vec<String>,
+    pub id: String,
+    pub remote: String,
+    pub local: String,
+    pub status: String,
 }
 
 #[derive(Debug, Clone)]
-pub struct Sshfs {
-    pub identity: Option<String>,
-    pub port: u16,
-    pub debug: bool,
+pub struct Model {
+    pub mounts: Vec<Mount>,
+    pub next_id: u64,
 }
 
-impl Default for Sshfs {
-    fn default() -> Self { Self { identity: None, port: 22, debug: false } }
+impl Default for Model {
+    fn default() -> Self { Self { mounts: vec![], next_id: 1 } }
 }
 
-impl Sshfs {
+impl Model {
     pub fn new() -> Self { Self::default() }
 
-    pub fn mount(&self, user_host: &str, remote: &str, local: &str) -> Mount {
-        Mount {
-            host: user_host.to_string(),
-            remote_path: remote.to_string(),
-            local_path: local.to_string(),
-            user: user_host.split('@').next().unwrap_or("user").to_string(),
-            options: vec!["reconnect".into(), "idmap=user".into()],
-        }
+    pub fn mount(&mut self, remote: &str, local: &str) -> String {
+        let id = format!("{:x}", self.next_id);
+        self.next_id += 1;
+        self.mounts.push(Mount { id: id.clone(), remote: remote.into(), local: local.into(), status: "mounted".into() });
+        id
     }
+
+    pub fn unmount(&mut self, id: &str) -> bool {
+        if let Some(m) = self.mounts.iter_mut().find(|m| m.id == id) {
+            m.status = "unmounted".into();
+            true
+        } else { false }
+    }
+
+    pub fn list(&self) -> &[Mount] { &self.mounts }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     #[test]
-    fn mount() {
-        let s = Sshfs::new();
-        let m = s.mount("user@host", "/remote", "/local");
-        assert_eq!(m.local_path, "/local");
+    fn mount_unmount() {
+        let mut s = Model::new();
+        let id = s.mount("user@server:/remote", "/mnt/sshfs");
+        assert!(s.unmount(&id));
     }
 }
