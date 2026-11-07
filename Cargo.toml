@@ -3,8 +3,6 @@ name = "sigmaos_sshfs"
 version = "0.1.0"
 edition = "2021"
 
-[dependencies]
-
 [lib]
 name = "sigmaos_sshfs"
 path = "src/lib.rs"
